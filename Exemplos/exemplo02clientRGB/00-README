@@ -1,0 +1,5 @@
+server.c programa exemplo do servidor udp para imprimir os componentes das cores
+
+main.py Programa para enviar os componentes das cores para o servidor UDP
+
+plot.cpp Programa para desenhar o gráfico na tela. Precisa do pangolin para compilar.
