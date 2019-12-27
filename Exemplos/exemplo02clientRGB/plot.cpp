@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 
   if(!arquivoPontos.empty()){
     
-    meuarquivo.open(arquivoPontos+".sci");
+    meuarquivo.open(arquivoPontos+".sce");
     meuarquivo << "// Red Green Blue Red Green Blue" << endl;
     meuarquivo << arquivoPontos << " = [" << endl;
   }
