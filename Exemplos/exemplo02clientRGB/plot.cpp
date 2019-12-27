@@ -70,10 +70,6 @@ int main(int argc, char* argv[])
   plotterright.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterright.Track("$i");
 
-  /*pangolin::View& d_cam1 = pangolin::Display("sensor left")
-    .SetAspect(640.0f/480.0f)
-    .SetHandler(plotter);*/
-
   pangolin::DisplayBase()
     .SetLayout(pangolin::LayoutEqual)
     .AddDisplay(plotterleft)
