@@ -12,7 +12,7 @@ import socket
 
 # Write your program here
 
-HOST = '192.168.2.2'  # Endereco IP do Servidor
+HOST = '192.168.0.2'  # Endereco IP do Servidor
 PORT = 2508            # Porta que o Servidor esta
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 dest = (HOST, PORT)
