@@ -40,9 +40,9 @@ while(Button.CENTER not in botoes):
 
     # Estas equações foram obtidas a partir dos valores ajustados
     # no script scilab
-    rr = "{0:.2f}".format(right[0]+0.080936*right[0]+2.244448)
-    rg = "{0:.2f}".format(right[1]+0.353503*right[1]+2.963078)
-    rb = "{0:.2f}".format(right[2]+0.365826*right[2]+4.664990)
+    rr = "{0:.2f}".format(right[0]+0.056038*right[0]+2.401640)
+    rg = "{0:.2f}".format(right[1]+0.296837*right[1]+3.561923)
+    rb = "{0:.2f}".format(right[2]+0.307362*right[2]+5.176365)
 
     contador += 1
 

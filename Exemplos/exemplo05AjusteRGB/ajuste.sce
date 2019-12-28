@@ -32,6 +32,7 @@ endfunction
 
 exec(get_absolute_file_path('ajuste.sce')+'amarelo.sce', 0);
 exec(get_absolute_file_path('ajuste.sce')+'azul.sce', 0);
+exec(get_absolute_file_path('ajuste.sce')+'branco.sce', 0);
 exec(get_absolute_file_path('ajuste.sce')+'cinza.sce', 0);
 exec(get_absolute_file_path('ajuste.sce')+'creme.sce', 0);
 exec(get_absolute_file_path('ajuste.sce')+'preto.sce', 0);
@@ -40,20 +41,21 @@ exec(get_absolute_file_path('ajuste.sce')+'vermelho.sce', 0);
 
 mamarelo = mean(amarelo,"r");
 mazul    = mean(azul,"r");
+mbranco  = mean(branco,"r");
 mcinza   = mean(cinza,"r");
 mcreme   = mean(creme,"r");
 mpreto   = mean(preto, "r");
 mverde   = mean(verde, "r");
 mvermelho= mean(vermelho, "r");
 
-rred = [ mamarelo(1) mazul(1) mcinza(1) mcreme(1) mpreto(1) mverde(1) mvermelho(1)];
-ared = [ mamarelo(4) mazul(4) mcinza(4) mcreme(4) mpreto(4) mverde(4) mvermelho(4)];
+rred = [ mamarelo(1) mazul(1) mbranco(1) mcinza(1) mcreme(1) mpreto(1) mverde(1) mvermelho(1)];
+ared = [ mamarelo(4) mazul(4) mbranco(4) mcinza(4) mcreme(4) mpreto(4) mverde(4) mvermelho(4)];
 
-rgreen = [ mamarelo(2) mazul(2) mcinza(2) mcreme(2) mpreto(2) mverde(2) mvermelho(2)];
-agreen = [ mamarelo(5) mazul(5) mcinza(5) mcreme(5) mpreto(5) mverde(5) mvermelho(5)];
+rgreen = [ mamarelo(2) mazul(2) mbranco(2) mcinza(2) mcreme(2) mpreto(2) mverde(2) mvermelho(2)];
+agreen = [ mamarelo(5) mazul(5) mbranco(5) mcinza(5) mcreme(5) mpreto(5) mverde(5) mvermelho(5)];
 
-rblue = [ mamarelo(3) mazul(3) mcinza(3) mcreme(3) mpreto(3) mverde(3) mvermelho(3)];
-ablue = [ mamarelo(6) mazul(6) mcinza(6) mcreme(6) mpreto(6) mverde(6) mvermelho(6)];
+rblue = [ mamarelo(3) mazul(3) mbranco(3) mcinza(3) mcreme(3) mpreto(3) mverde(3) mvermelho(3)];
+ablue = [ mamarelo(6) mazul(6) mbranco(6) mcinza(6) mcreme(6) mpreto(6) mverde(6) mvermelho(6)];
 
 scf(1001)
 clf();
@@ -95,7 +97,7 @@ estadoBlue=GaussNewtonI(Y, X, tetaI, iteracoes);
 
 // Vamos plotar o gráfico das funções ajustadas
 scf(1002)
-X=[0:35];
+X=[0:55];
 Y=estadoRed(1)*X + estadoRed(2);
 subplot(2,2,1);
 titulo=msprintf("erro(x)=%fx+%f\n", estadoRed(1), estadoRed(2));
