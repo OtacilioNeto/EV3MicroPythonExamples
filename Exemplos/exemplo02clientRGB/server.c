@@ -39,7 +39,8 @@ int main() {
         exit(EXIT_FAILURE); 
     } 
       
-    int len, n, contador=-1, acontador; 
+    int n, contador=-1, acontador;
+    socklen_t len;
     float lr, lg, lb, rr, rg, rb;
     while(1){
         n = recvfrom(sockfd, (char *)buffer, MAXLINE,  
