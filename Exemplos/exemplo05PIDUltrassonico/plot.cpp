@@ -15,6 +15,8 @@
 #define PORT        2508 
 #define MAXLINE     1024
 
+#define MAXGRAF     100
+
 using namespace std;
 
 static const char short_options[] = "f:";
@@ -99,12 +101,12 @@ int main(int argc, char* argv[])
   const float tinc = 0.02f;
 
   // OpenGL 'view' of data. We might have many views of the same data.
-  pangolin::Plotter plotterleft(&logtop, 0.0f, 4.0f*(float)M_PI/tinc, 0, 1000, 
+  pangolin::Plotter plotterleft(&logtop, 0.0f, 4.0f*(float)M_PI/tinc, 0, MAXGRAF, 
     (float)M_PI/(4.0f*tinc),0.5f);
   plotterleft.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterleft.Track("$i");
 
-  pangolin::Plotter plotterright(&logbotton, 0.0f, 4.0f*(float)M_PI/tinc, 0, 1000, 
+  pangolin::Plotter plotterright(&logbotton, 0.0f, 4.0f*(float)M_PI/tinc, 0, MAXGRAF, 
     (float)M_PI/(4.0f*tinc),0.5f);
   plotterright.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterright.Track("$i");
