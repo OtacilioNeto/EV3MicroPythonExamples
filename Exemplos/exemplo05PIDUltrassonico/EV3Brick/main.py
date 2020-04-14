@@ -45,12 +45,15 @@ contador    = 0
 top         = 0
 botton      = 0
 motorOn     = False
-Kp          =  -1    # Testa com -0.5 -4 -2 -1.5 Ganho Proporcional -1.0
+
+Kp          =  -1.0  # Testa com -0.5 -4 -2 -1.5 Ganho Proporcional -1.0
 Kd          = -70.0  # Testa com  0 -10 -20 -30  Ganho Derivativo  -70.0
 Ki          =  -0.1  # Testa com  0 -0.1         Ganho integral     -0.1
+
 setPoint    = 30     # 30     # Distancia em milimetros do ponto de parada
 erro        = 0
 erroAnt     = 0
+integral    = 0
 while(True):
     if(not topOff):
         top  = topSensor.distance()
@@ -60,23 +63,26 @@ while(True):
         distancia = botton
     
     if(motorOn):
-        erroAnt = erro
-        erro    = (setPoint - distancia)
-        tempo   = cronometro.time()
-        potencia = Kp*erro + Ki*(erro+erroAnt)*tempo/2.0 + Kd*(erro-erroAnt)/tempo
+        erroAnt     = erro
+        erro        = (setPoint - distancia)
+        tempo       = cronometro.time()
+        cronometro.reset()
+        
+        integral    = (erro+erroAnt)*tempo/2.0
+        derivativo  = (erro-erroAnt)/tempo
+        
+        potencia    = Kp*erro + Ki*integral + Kd*derivativo
         if(potencia>100):
             potencia = 100
         elif(potencia<-100):
             potencia = -100
         motorLeft.dc(int(potencia))
         motorRight.dc(int(potencia))
-        cronometro.reset()
+    else:
+        motorLeft.dc(0)
+        motorRight.dc(0)
     
     botoes = brick.buttons()
-    if(Button.RIGHT in botoes):
-        motorOn = True
-    if(Button.LEFT in botoes):
-        motorOn = False
 
     if(Button.CENTER in botoes):
         break
@@ -94,6 +100,11 @@ while(True):
         bottonSensor.distance(bottonOff)
         if(bottonOff):
             botton = 0
+    if(Button.RIGHT in botoes):
+        motorOn = True
+        cronometro.reset()
+    if(Button.LEFT in botoes):
+        motorOn = False
     
     if((top<20 and not topOff) or (botton<20 and not bottonOff)):
         # Parada de emergência
