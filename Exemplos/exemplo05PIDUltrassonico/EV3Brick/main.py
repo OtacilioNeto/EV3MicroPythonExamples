@@ -12,10 +12,7 @@ from pybricks.robotics import DriveBase
 
 import socket
 
-# Write your program here
 brick.sound.beep()
-
-# Write your program here
 
 HOST = '192.168.0.2'  # Endereco IP do Servidor
 PORT = 2508            # Porta que o Servidor esta
