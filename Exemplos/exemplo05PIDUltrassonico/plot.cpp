@@ -15,21 +15,24 @@
 #define PORT        2508 
 #define MAXLINE     1024
 
-#define MAXGRAF     100
+#define MAXGRAF     200
 
 using namespace std;
 
-static const char short_options[] = "f:";
+static const char short_options[] = "f:p";
 static const struct option long_options[] = {
 	{ "file",           required_argument,  NULL, 'f' },
-  { 0, 	                              0,	   0,  0  }
+  { "print",            NULL, NULL, 0,},
+  { 0, 0, 0, 0  }
 };
 
 static void usage(char **argv)
 {
         cerr << "Uso: "<<argv[0]<<" <options>"<<endl<<endl<<
                 "Options:"<<endl<<
-                "-f | --file nome do arquivo para guardar os valores lidos"<<endl<<endl;
+                "-f | --file nome do arquivo para guardar os valores lidos"<<endl<<
+                "-p | --print imprime os valores recebidos"<<endl<<endl;
+
 }
 
 int main(int argc, char* argv[])
@@ -37,6 +40,7 @@ int main(int argc, char* argv[])
   int sockfd; 
   char buffer[MAXLINE]; 
   struct sockaddr_in servaddr, cliaddr; 
+  bool print = false;
   string  arquivoPontos;
   std::ofstream meuarquivo;
       
@@ -55,6 +59,9 @@ int main(int argc, char* argv[])
         case 'f':
             arquivoPontos = optarg;
             break;
+        case 'p':
+          print = true;
+          break;
 		    default:
 			    usage(argv);
 			    exit(EXIT_FAILURE);
@@ -81,7 +88,7 @@ int main(int argc, char* argv[])
     exit(EXIT_FAILURE); 
   } 
       
-  int n, contador=-1, acontador; 
+  int n, acontador; 
   socklen_t len;
   float ltop, lbotton;
 
@@ -130,29 +137,29 @@ int main(int argc, char* argv[])
   // Default hooks for exiting (Esc) and fullscreen (tab).
   while(!pangolin::ShouldQuit()){
     n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &len); 
-    buffer[n] = '\0'; 
+    buffer[n] = '\0';
+    
+    if(print){
+      printf("%s\n", buffer);
+    }
+    
     char* token = strtok(buffer, " "); 
     acontador = strtol(token, NULL, 10);
-    if(acontador>contador){
-      contador = acontador;
-      token   = strtok(NULL, " "); 
-         
-      ltop    = strtof(token, NULL);
+    token   = strtok(NULL, " "); 
+    ltop    = strtof(token, NULL);
+    token   = strtok(NULL, " "); 
+    lbotton = strtof(token, NULL);
       
-      token   = strtok(NULL, " "); 
-      lbotton = strtof(token, NULL);
-      
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      logtop.Log(ltop);
-      logbotton.Log(lbotton);
-      t += tinc;
+    logtop.Log(ltop);
+    logbotton.Log(lbotton);
+    t += tinc;
 
-      meuarquivo << ltop << " " << lbotton << ";" << endl;
+    meuarquivo << ltop << " " << lbotton << ";" << endl;
 
-      // Render graph, Swap frames and Process Events
-      pangolin::FinishFrame();
-    }
+    // Render graph, Swap frames and Process Events
+    pangolin::FinishFrame();
   }
 
   if(meuarquivo.is_open()){

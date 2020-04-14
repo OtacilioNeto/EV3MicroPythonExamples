@@ -46,11 +46,14 @@ top         = 0
 botton      = 0
 motorOn     = False
 
-Kp          =  -1.0  # Testa com -0.5 -4 -2 -1.5 Ganho Proporcional -1.0
-Kd          = -70.0  # Testa com  0 -10 -20 -30  Ganho Derivativo  -70.0
-Ki          =  -0.1  # Testa com  0 -0.1         Ganho integral     -0.1
+Kp          =   -1.0    # Testa com -0.5 -4 -2 -1.5 Ganho Proporcional -1.0
+Kd          =  -80.0    # Testa com  0 -10 -20 -30  Ganho Derivativo  -70.0
+Ki          =  -0.002   # Ganho integral
 
-setPoint    = 30     # 30     # Distancia em milimetros do ponto de parada
+setPoint    = 70    # Distancia em milimetros da referência de parada
+atuacao     = 60    # Distancia do ponto de parada a partir do qual o controlador passa a atuar
+potMaxima   = 100   # Potencia máxima de atuação dos motores
+distMinima  = 30    # A partir desta distância para baixo desliga os motores
 erro        = 0
 erroAnt     = 0
 integral    = 0
@@ -63,19 +66,27 @@ while(True):
         distancia = botton
     
     if(motorOn):
-        erroAnt     = erro
-        erro        = (setPoint - distancia)
-        tempo       = cronometro.time()
-        cronometro.reset()
-        
-        integral    = (erro+erroAnt)*tempo/2.0
-        derivativo  = (erro-erroAnt)/tempo
-        
-        potencia    = Kp*erro + Ki*integral + Kd*derivativo
-        if(potencia>100):
-            potencia = 100
-        elif(potencia<-100):
-            potencia = -100
+        if(distancia>=(setPoint-atuacao) and distancia<=(setPoint+atuacao)):
+            erroAnt     = erro
+            erro        = (setPoint - distancia)
+            tempo       = cronometro.time()
+            cronometro.reset()
+
+            integral    = integral + (erro+erroAnt)*tempo/2.0
+            derivativo  = (erro-erroAnt)/tempo
+            
+            potencia    = Kp*erro + Ki*integral + Kd*derivativo
+        elif(distancia>(setPoint+atuacao)):
+            potencia= potMaxima
+            integral= 0
+        elif(distancia<(setPoint-atuacao)):
+            potencia= -potMaxima
+            integral= 0
+                
+        if(potencia>potMaxima):
+            potencia = potMaxima
+        elif(potencia<-potMaxima):
+            potencia = -potMaxima
         motorLeft.dc(int(potencia))
         motorRight.dc(int(potencia))
     else:
@@ -106,10 +117,9 @@ while(True):
     if(Button.LEFT in botoes):
         motorOn = False
     
-    if((top<20 and not topOff) or (botton<20 and not bottonOff)):
+    if((top<=distMinima and not topOff) or (botton<=distMinima and not bottonOff)):
         # Parada de emergência
-        motorLeft.dc(0)
-        motorRight.dc(0)
+        motorOn = False
 
     contador += 1
     msg = str(contador)+" "+str(top)+" "+str(botton)
