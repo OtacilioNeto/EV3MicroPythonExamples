@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include <stdio.h> 
-#include <stdlib.h> 
-#include <unistd.h> 
+#include <cstdio> 
+#include <cstdlib> 
 #include <string.h> 
 #include <sys/types.h> 
 #include <sys/socket.h> 
@@ -15,15 +14,16 @@
 #define PORT        2508 
 #define MAXLINE     1024
 
-#define MAXGRAF     200
+#define MAXDIST     500 // Escala máxima da distância (mm)
+#define MAXPOT      100 // Escala máxima da potência (%)
 
 using namespace std;
 
 static const char short_options[] = "f:p";
 static const struct option long_options[] = {
-	{ "file",           required_argument,  NULL, 'f' },
-  { "print",            NULL, NULL, 0,},
-  { 0, 0, 0, 0  }
+	{ "file",           required_argument,  0, 'f' },
+  { "print",            0,                0,  0  },
+  {       0,            0,                0,  0  }
 };
 
 static void usage(char **argv)
@@ -90,30 +90,33 @@ int main(int argc, char* argv[])
       
   int n, acontador; 
   socklen_t len;
-  float ltop, lbotton;
+  float lsensor, lpotencia;
 
   // Create OpenGL window in single line
   pangolin::CreateWindowAndBind("Main",640,480);
 
   // Data logger object
-  pangolin::DataLog logtop, logbotton;
+  pangolin::DataLog sensor, potencia;
 
   // Optionally add named labels
-  std::vector<std::string> labels;
-  labels.push_back(std::string("distancia"));
+  std::vector<std::string> labelSensor;
+  labelSensor.push_back(std::string("distancia (mm)"));
+  std::vector<std::string> labelPotencia;
+  labelPotencia.push_back(std::string("potencia (%)"));
+
   
-  logtop.SetLabels(labels);
-  logbotton.SetLabels(labels);
+  sensor.SetLabels(labelSensor);
+  potencia.SetLabels(labelPotencia);
 
   const float tinc = 0.02f;
 
   // OpenGL 'view' of data. We might have many views of the same data.
-  pangolin::Plotter plotterleft(&logtop, 0.0f, 4.0f*(float)M_PI/tinc, 0, MAXGRAF, 
+  pangolin::Plotter plotterleft(&sensor, 0.0f, 4.0f*(float)M_PI/tinc, 0, MAXDIST , 
     (float)M_PI/(4.0f*tinc),0.5f);
   plotterleft.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterleft.Track("$i");
 
-  pangolin::Plotter plotterright(&logbotton, 0.0f, 4.0f*(float)M_PI/tinc, 0, MAXGRAF, 
+  pangolin::Plotter plotterright(&potencia, 0.0f, 4.0f*(float)M_PI/tinc, -MAXPOT, MAXPOT, 
     (float)M_PI/(4.0f*tinc),0.5f);
   plotterright.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterright.Track("$i");
@@ -134,7 +137,7 @@ int main(int argc, char* argv[])
     meuarquivo << arquivoPontos << " = [" << endl;
   }
 
-  // Default hooks for exiting (Esc) and fullscreen (tab).
+  // Default hooks for exiting (ESC) and fullscreen (TAB).
   while(!pangolin::ShouldQuit()){
     n = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &cliaddr, &len); 
     buffer[n] = '\0';
@@ -144,19 +147,19 @@ int main(int argc, char* argv[])
     }
     
     char* token = strtok(buffer, " "); 
-    acontador = strtol(token, NULL, 10);
-    token   = strtok(NULL, " "); 
-    ltop    = strtof(token, NULL);
-    token   = strtok(NULL, " "); 
-    lbotton = strtof(token, NULL);
+    acontador   = strtol(token, NULL, 10);
+    token       = strtok(NULL, " "); 
+    lsensor     = strtof(token, NULL);
+    token       = strtok(NULL, " "); 
+    lpotencia   = strtof(token, NULL);
       
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    logtop.Log(ltop);
-    logbotton.Log(lbotton);
+    sensor.Log(lsensor);
+    potencia.Log(lpotencia);
     t += tinc;
 
-    meuarquivo << ltop << " " << lbotton << ";" << endl;
+    meuarquivo << lsensor << " " << lpotencia << ";" << endl;
 
     // Render graph, Swap frames and Process Events
     pangolin::FinishFrame();
@@ -166,5 +169,6 @@ int main(int argc, char* argv[])
     meuarquivo << "];" << endl;
     meuarquivo.close();
   }
+  
   return 0;
 }

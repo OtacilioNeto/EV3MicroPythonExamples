@@ -82,6 +82,7 @@ int main(int argc, char* argv[])
   int n, contador=-1, acontador; 
   socklen_t len;
   float lr, lg, lb, rr, rg, rb;
+  pangolin::Colour branco(0,0,0,1);
 
   // Create OpenGL window in single line
   pangolin::CreateWindowAndBind("Main",640,480);
@@ -103,11 +104,13 @@ int main(int argc, char* argv[])
   pangolin::Plotter plotterleft(&logleft, 0.0f, 4.0f*(float)M_PI/tinc, 0, 100, 
     (float)M_PI/(4.0f*tinc),0.5f);
   plotterleft.SetBounds(0.0, 1.0, 0.0, 1.0);
+  plotterleft.SetBackgroundColour(branco);
   plotterleft.Track("$i");
 
   pangolin::Plotter plotterright(&logright, 0.0f, 4.0f*(float)M_PI/tinc, 0, 100, 
     (float)M_PI/(4.0f*tinc),0.5f);
   plotterright.SetBounds(0.0, 1.0, 0.0, 1.0);
+  plotterright.SetBackgroundColour(branco);
   plotterright.Track("$i");
 
   pangolin::DisplayBase()

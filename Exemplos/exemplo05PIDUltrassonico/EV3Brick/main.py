@@ -29,7 +29,7 @@ cronometro = StopWatch()
 topSensor = UltrasonicSensor(Port.S4)
 bottonSensor = UltrasonicSensor(Port.S1)
 
-# Desliga os dois sensores
+# Seta o estado dos sensores de distância
 topOff       = True
 topSensor.distance(topOff)
 bottonOff    = False
@@ -46,17 +46,28 @@ top         = 0
 botton      = 0
 motorOn     = False
 
-Kp          =   -1.0    # Testa com -0.5 -4 -2 -1.5 Ganho Proporcional -1.0
-Kd          =  -80.0    # Testa com  0 -10 -20 -30  Ganho Derivativo  -70.0
-Ki          =  -0.002   # Ganho integral
+Kp          =    -0.9     # -4 oscila bastante a potência e a distância, 
+                        # -3 dá um pico passando e tem pico inverso
+                        # -2 dá um pico passando 
+                        # Os valores anteriores foram encontrados para Kd e Ki = 0
+                        # O melhor valor é -0.9 Não mexa!
+Ki          =    -0.0001# O melhor valor é -0.0001 Não mexa!
+Kd          =    0      # Testa com  valores negativos. Aparentemente não deu diferença
+
 
 setPoint    = 70    # Distancia em milimetros da referência de parada
-atuacao     = 60    # Distancia do ponto de parada a partir do qual o controlador passa a atuar
+atuacao     = 80    # Distancia da referência de parada a partir do qual o controlador passa a atuar
 potMaxima   = 100   # Potencia máxima de atuação dos motores
 distMinima  = 30    # A partir desta distância para baixo desliga os motores
 erro        = 0
 erroAnt     = 0
 integral    = 0
+potencia    = 0
+Kperro      = 0
+Kiintegral  = 0
+Kdderivativo= 0
+tempo       = 0
+
 while(True):
     if(not topOff):
         top  = topSensor.distance()
@@ -75,7 +86,11 @@ while(True):
             integral    = integral + (erro+erroAnt)*tempo/2.0
             derivativo  = (erro-erroAnt)/tempo
             
-            potencia    = Kp*erro + Ki*integral + Kd*derivativo
+            Kperro      = Kp*erro
+            Kiintegral  = Ki*integral
+            Kdderivativo= Kd*derivativo
+
+            potencia    = Kperro + Kiintegral + Kdderivativo
         elif(distancia>(setPoint+atuacao)):
             potencia= potMaxima
             integral= 0
@@ -90,39 +105,48 @@ while(True):
         motorLeft.dc(int(potencia))
         motorRight.dc(int(potencia))
     else:
-        motorLeft.dc(0)
-        motorRight.dc(0)
+        erro     = 0
+        integral = 0
+        potencia = 0.0
+        motorLeft.dc(int(potencia))
+        motorRight.dc(int(potencia))
     
     botoes = brick.buttons()
 
     if(Button.CENTER in botoes):
         break
-    if(Button.UP in botoes):
+    if(Button.UP in botoes):    # Botão para cima usa o sensor de cima
         topOff      = not topOff
         bottonOff   = not topOff
         topSensor.distance(topOff)
         bottonSensor.distance(bottonOff)
         if(topOff):
             top = 0
-    if(Button.DOWN in botoes):
+    if(Button.DOWN in botoes):  # Botão para baixo usa o sensor de baixo
         bottonOff   = not bottonOff
         topOff      = not bottonOff
         topSensor.distance(topOff)
         bottonSensor.distance(bottonOff)
         if(bottonOff):
             botton = 0
-    if(Button.RIGHT in botoes):
+    if(Button.RIGHT in botoes): # Botão para a direita liga os motores
         motorOn = True
         cronometro.reset()
-    if(Button.LEFT in botoes):
+    if(Button.LEFT in botoes):  # Botão para a esquerda desliga os motores
         motorOn = False
     
     if((top<=distMinima and not topOff) or (botton<=distMinima and not bottonOff)):
         # Parada de emergência
         motorOn = False
+    if(not topOff):
+        sensor = top
+    elif(not bottonOff):
+        sensor = botton
+    else:
+        sensor = -1
 
     contador += 1
-    msg = str(contador)+" "+str(top)+" "+str(botton)
+    msg = '{:} {:} {:.0f} {:.2f} {:.2f} {:.2f} {:.f}'.format(contador, sensor, potencia, Kperro, Kiintegral, Kdderivativo, tempo)
     udp.sendto (msg, dest)
 
 motorLeft.dc(0)
