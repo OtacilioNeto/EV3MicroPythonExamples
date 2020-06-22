@@ -1,33 +1,38 @@
 #!/usr/bin/env pybricks-micropython
-
-from pybricks import ev3brick as brick
+from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
-from pybricks.parameters import (Port, Stop, Direction, Button, Color,
-                                 SoundFile, ImageFile, Align)
-from pybricks.tools import print, wait, StopWatch
+from pybricks.parameters import Port, Stop, Direction, Button, Color
+from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
+from pybricks.media.ev3dev import SoundFile, ImageFile
 
 import socket
 
-# Write your program here
+# This program requires LEGO EV3 MicroPython v2.0 or higher.
+# Click "Open user guide" on the EV3 extension tab for more information.
 
-HOST = '192.168.0.2'  # Endereco IP do Servidor
+ev3 = EV3Brick()
+
+# Write your program here
+ev3.speaker.set_speech_options('pt-br','m3')
+
+ev3.speaker.say("Criando interface de rede")
+HOST = '192.168.0.3'  # Endereco IP do Servidor
 PORT = 2508            # Porta que o Servidor esta
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 dest = (HOST, PORT)
-brick.sound.file(SoundFile.READY)
+
+ev3.speaker.say("Abrindo sensores")
 
 corLeft  = ColorSensor(Port.S2)
 corRight = ColorSensor(Port.S3)
 
-brick.sound.file(SoundFile.ANALYZE)
-brick.sound.file(SoundFile.COLOR)
+ev3.speaker.say("Analizando as cores")
 
 #cronometro = StopWatch()
 contador = 0
-botoes = brick.buttons()
-while(Button.CENTER not in botoes):
+while(Button.CENTER not in ev3.buttons.pressed()):
     #cronometro.reset()
     left = corLeft.rgb()
     right= corRight.rgb()
@@ -50,6 +55,5 @@ while(Button.CENTER not in botoes):
     #print("Tempo formatação ", cronometro.time())
 
     udp.sendto (msg, dest)
-    botoes = brick.buttons()
 
-brick.sound.file(SoundFile.STOP)
+ev3.speaker.say("Encerrado")

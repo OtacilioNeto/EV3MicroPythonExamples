@@ -1,26 +1,32 @@
 #!/usr/bin/env pybricks-micropython
-
-# file:///home/ota/.vscode/extensions/lego-education.ev3-micropython-1.0.3/resources/docs/index.html
-
-from pybricks import ev3brick as brick
+from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
-from pybricks.parameters import (Port, Stop, Direction, Button, Color,
-                                 SoundFile, ImageFile, Align)
-from pybricks.tools import print, wait, StopWatch
+from pybricks.parameters import Port, Stop, Direction, Button, Color
+from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.robotics import DriveBase
+from pybricks.media.ev3dev import SoundFile, ImageFile
 
 import socket
 
-brick.sound.beep()
+# This program requires LEGO EV3 MicroPython v2.0 or higher.
+# Click "Open user guide" on the EV3 extension tab for more information.
 
-HOST = '192.168.0.2'  # Endereco IP do Servidor
+ev3 = EV3Brick()
+
+# Write your program here
+ev3.speaker.set_speech_options('pt-br','m3')
+
+ev3.speaker.beep()
+
+ev3.speaker.say("Criando interface de rede")
+HOST = '192.168.0.3'  # Endereco IP do Servidor
 PORT = 2508            # Porta que o Servidor esta
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 dest = (HOST, PORT)
-brick.sound.file(SoundFile.READY)
 
-brick.sound.file(SoundFile.ANALYZE)
+
+ev3.speaker.say("Iniciando programa de controle")
 
 cronometro = StopWatch()
 
@@ -111,7 +117,7 @@ while(True):
         motorLeft.dc(int(potencia))
         motorRight.dc(int(potencia))
     
-    botoes = brick.buttons()
+    botoes = ev3.buttons.pressed()
 
     if(Button.CENTER in botoes):
         break
@@ -151,5 +157,5 @@ while(True):
 
 motorLeft.dc(0)
 motorRight.dc(0)
-brick.sound.file(SoundFile.STOP)
+ev3.speaker.say("Encerrado")
 
