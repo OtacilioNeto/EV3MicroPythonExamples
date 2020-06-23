@@ -52,12 +52,12 @@ top         = 0
 botton      = 0
 motorOn     = False
 
-Kp          =    -0.9     # -4 oscila bastante a potência e a distância, 
+Kp          =    -0.8     # -4 oscila bastante a potência e a distância, 
                         # -3 dá um pico passando e tem pico inverso
                         # -2 dá um pico passando 
                         # Os valores anteriores foram encontrados para Kd e Ki = 0
                         # O melhor valor é -0.9 Não mexa!
-Ki          =    -0.0001# O melhor valor é -0.0001 Não mexa!
+Ki          =    0      # O melhor valor é -0.0001 Não mexa!
 Kd          =    0      # Testa com  valores negativos. Aparentemente não deu diferença
 
 
@@ -65,6 +65,7 @@ setPoint    = 70    # Distancia em milimetros da referência de parada
 atuacao     = 80    # Distancia da referência de parada a partir do qual o controlador passa a atuar
 potMaxima   = 100   # Potencia máxima de atuação dos motores
 distMinima  = 30    # A partir desta distância para baixo desliga os motores
+DEADPOT     = 2.0   # Potencia que se solicitada por mais de 10 vezes o sistema entende que é para parar os motores
 erro        = 0
 erroAnt     = 0
 integral    = 0
@@ -73,6 +74,7 @@ Kperro      = 0
 Kiintegral  = 0
 Kdderivativo= 0
 tempo       = 0
+contaPot    = 0
 
 while(True):
     if(not topOff):
@@ -108,14 +110,32 @@ while(True):
             potencia = potMaxima
         elif(potencia<-potMaxima):
             potencia = -potMaxima
-        motorLeft.dc(int(potencia))
-        motorRight.dc(int(potencia))
+        
+        if(potencia>=0):
+            potenciaReal = potencia/1.098901098901099 + 9
+        else:
+            potenciaReal = potencia/1.098901098901099 - 9
+        
+#        potenciaReal = potencia
+        
+        if(abs(potencia) <= DEADPOT): # Testa se esta em uma posição da zona morta
+            contaPot += 1
+        else:
+            contaPot  = 0
+
+        if(contaPot<=10):
+            motorLeft.dc(potenciaReal)
+            motorRight.dc(potenciaReal)
+        else:
+            motorLeft.brake()
+            motorRight.brake()
+
     else:
         erro     = 0
         integral = 0
         potencia = 0.0
-        motorLeft.dc(int(potencia))
-        motorRight.dc(int(potencia))
+        motorLeft.brake()
+        motorRight.brake()
     
     botoes = ev3.buttons.pressed()
 
@@ -152,7 +172,7 @@ while(True):
         sensor = -1
 
     contador += 1
-    msg = '{:} {:} {:.0f} {:.2f} {:.2f} {:.2f} {:.f}'.format(contador, sensor, potencia, Kperro, Kiintegral, Kdderivativo, tempo)
+    msg = '{:} {:} {:.f} {:.2f} {:.2f} {:.2f}'.format(contador, sensor, potencia, Kperro, Kiintegral, Kdderivativo)
     udp.sendto (msg, dest)
 
 motorLeft.dc(0)
