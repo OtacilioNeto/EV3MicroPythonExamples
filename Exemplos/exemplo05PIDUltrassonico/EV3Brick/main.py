@@ -44,36 +44,27 @@ bottonSensor.distance(bottonOff)
 # Vamos testar os motores
 motorLeft = Motor(Port.B)
 motorRight= Motor(Port.C)
-motorLeft.dc(0)
-motorRight.dc(0)
+motorLeft.brake()
+motorRight.brake()
 
 contador    = 0
 top         = 0
 botton      = 0
 motorOn     = False
 
-Kp          =    -0.8     # -4 oscila bastante a potência e a distância, 
+Kp          =    -0.9   # -4 oscila bastante a potência e a distância, 
                         # -3 dá um pico passando e tem pico inverso
                         # -2 dá um pico passando 
                         # Os valores anteriores foram encontrados para Kd e Ki = 0
                         # O melhor valor é -0.9 Não mexa!
-Ki          =    0      # O melhor valor é -0.0001 Não mexa!
-Kd          =    0      # Testa com  valores negativos. Aparentemente não deu diferença
-
 
 setPoint    = 70    # Distancia em milimetros da referência de parada
-atuacao     = 80    # Distancia da referência de parada a partir do qual o controlador passa a atuar
 potMaxima   = 100   # Potencia máxima de atuação dos motores
-distMinima  = 30    # A partir desta distância para baixo desliga os motores
+distMinima  = 30    # A partir desta distância para baixo chame brake() nos motores
 DEADPOT     = 2.0   # Potencia que se solicitada por mais de 10 vezes o sistema entende que é para parar os motores
 erro        = 0
-erroAnt     = 0
-integral    = 0
 potencia    = 0
 Kperro      = 0
-Kiintegral  = 0
-Kdderivativo= 0
-tempo       = 0
 contaPot    = 0
 
 while(True):
@@ -84,27 +75,10 @@ while(True):
         botton = bottonSensor.distance()
         distancia = botton
     
+    erro = setPoint - distancia
     if(motorOn):
-        if(distancia>=(setPoint-atuacao) and distancia<=(setPoint+atuacao)):
-            erroAnt     = erro
-            erro        = (setPoint - distancia)
-            tempo       = cronometro.time()
-            cronometro.reset()
-
-            integral    = integral + (erro+erroAnt)*tempo/2.0
-            derivativo  = (erro-erroAnt)/tempo
-            
-            Kperro      = Kp*erro
-            Kiintegral  = Ki*integral
-            Kdderivativo= Kd*derivativo
-
-            potencia    = Kperro + Kiintegral + Kdderivativo
-        elif(distancia>(setPoint+atuacao)):
-            potencia= potMaxima
-            integral= 0
-        elif(distancia<(setPoint-atuacao)):
-            potencia= -potMaxima
-            integral= 0
+        Kperro      = Kp*erro
+        potencia    = Kperro
                 
         if(potencia>potMaxima):
             potencia = potMaxima
@@ -116,7 +90,7 @@ while(True):
         else:
             potenciaReal = potencia/1.098901098901099 - 9
         
-#        potenciaReal = potencia
+        potenciaReal = potencia
         
         if(abs(potencia) <= DEADPOT): # Testa se esta em uma posição da zona morta
             contaPot += 1
@@ -129,10 +103,7 @@ while(True):
         else:
             motorLeft.brake()
             motorRight.brake()
-
     else:
-        erro     = 0
-        integral = 0
         potencia = 0.0
         motorLeft.brake()
         motorRight.brake()
@@ -157,7 +128,6 @@ while(True):
             botton = 0
     if(Button.RIGHT in botoes): # Botão para a direita liga os motores
         motorOn = True
-        cronometro.reset()
     if(Button.LEFT in botoes):  # Botão para a esquerda desliga os motores
         motorOn = False
     
@@ -172,10 +142,9 @@ while(True):
         sensor = -1
 
     contador += 1
-    msg = '{:} {:} {:.f} {:.2f} {:.2f} {:.2f}'.format(contador, sensor, potencia, Kperro, Kiintegral, Kdderivativo)
+    msg = '{:} {:} {:.f} {:.2f}'.format(contador, sensor, potencia, Kperro)
     udp.sendto (msg, dest)
 
-motorLeft.dc(0)
-motorRight.dc(0)
+motorLeft.brake()
+motorRight.brake()
 ev3.speaker.say("Encerrado")
-

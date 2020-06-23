@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
       
   int n, acontador; 
   socklen_t len;
-  float lsensor, lpotencia;
+  float lsensor, lpotencia, lproporci;
 
   // Create OpenGL window in single line
   pangolin::CreateWindowAndBind("Main",640,480);
@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 
   if(!arquivoPontos.empty()){    
     meuarquivo.open(arquivoPontos+".sce");
-    meuarquivo << "// Top Botton" << endl;
+    meuarquivo << "// Contador Distancia Potencia Proporcional" << endl;
     meuarquivo << arquivoPontos << " = [" << endl;
   }
 
@@ -152,6 +152,8 @@ int main(int argc, char* argv[])
     lsensor     = strtof(token, NULL);
     token       = strtok(NULL, " "); 
     lpotencia   = strtof(token, NULL);
+    token       = strtok(NULL, " ");
+    lproporci   = strtof(token, NULL);
       
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -159,7 +161,7 @@ int main(int argc, char* argv[])
     potencia.Log(lpotencia);
     t += tinc;
 
-    meuarquivo << lsensor << " " << lpotencia << ";" << endl;
+    meuarquivo << acontador << " " << lsensor << " " << lpotencia << " " << lproporci << ";" << endl;
 
     // Render graph, Swap frames and Process Events
     pangolin::FinishFrame();
