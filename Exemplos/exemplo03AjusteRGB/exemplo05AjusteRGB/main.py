@@ -18,8 +18,8 @@ ev3 = EV3Brick()
 ev3.speaker.set_speech_options('pt-br','m3')
 
 ev3.speaker.say("Criando interface de rede")
-HOST = '192.168.0.3'  # Endereco IP do Servidor
-PORT = 2508            # Porta que o Servidor esta
+HOST = '192.168.0.3'    # Endereco IP do Servidor
+PORT = 2508             # Porta que o Servidor esta
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 dest = (HOST, PORT)
 
@@ -45,9 +45,9 @@ while(Button.CENTER not in ev3.buttons.pressed()):
 
     # Estas equações foram obtidas a partir dos valores ajustados
     # no script scilab
-    rr = "{0:.2f}".format(right[0]+0.056038*right[0]+2.401640)
-    rg = "{0:.2f}".format(right[1]+0.296837*right[1]+3.561923)
-    rb = "{0:.2f}".format(right[2]+0.307362*right[2]+5.176365)
+    rr = "{0:.2f}".format(right[0]+0.048859*right[0]+1.236116)
+    rg = "{0:.2f}".format(right[1]+0.319633*right[1]+1.086458)
+    rb = "{0:.2f}".format(right[2]+0.348117*right[2]+4.107346)
 
     contador += 1
 

@@ -129,9 +129,9 @@ eixo_green.data_bounds = [0 0;reixo_green.data_bounds(2,2) reixo_green.data_boun
 X=[0:reixo_blue.data_bounds(2,2)];
 Y=estadoBlue(1)*X + estadoBlue(2);
 subplot(2,2,3);
-plot(X,Y, "blue", title(titulo, "fontsize",4));
 scatter(gca(), ablue, rblue-ablue, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 0 1]);
 titulo=msprintf("erro(x)=%fx+%f\n", estadoBlue(1), estadoBlue(2));
+plot(X,Y, "blue", title(titulo, "fontsize",4));
 eixo_blue = gca();
 eixo_blue.data_bounds = [0 0;reixo_blue.data_bounds(2,2) reixo_blue.data_bounds(2,2)];
 
