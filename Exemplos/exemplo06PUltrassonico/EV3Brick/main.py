@@ -52,11 +52,11 @@ top         = 0
 botton      = 0
 motorOn     = False
 
-Kp          =    -0.9   # -4 oscila bastante a potência e a distância, 
+Kp          =    -0.8   # -4 oscila bastante a potência e a distância, 
                         # -3 dá um pico passando e tem pico inverso
                         # -2 dá um pico passando 
                         # Os valores anteriores foram encontrados para Kd e Ki = 0
-                        # O melhor valor é -0.9 Não mexa!
+                        # O melhor valor é -0.8 Não mexa!
 
 setPoint    = 70    # Distancia em milimetros da referência de parada
 potMaxima   = 100   # Potencia máxima de atuação dos motores
@@ -89,8 +89,6 @@ while(True):
             potenciaReal = potencia/1.098901098901099 + 9
         else:
             potenciaReal = potencia/1.098901098901099 - 9
-        
-        potenciaReal = potencia
         
         if(abs(potencia) <= DEADPOT): # Testa se esta em uma posição da zona morta
             contaPot += 1
