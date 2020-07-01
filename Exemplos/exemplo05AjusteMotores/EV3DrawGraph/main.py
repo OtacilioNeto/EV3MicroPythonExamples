@@ -39,17 +39,17 @@ motorRight.brake()
 udp.sendto("// potencia (%), giro esquerdo (graus/%s), giro direito (graus/%s)", dest)
 udp.sendto("datalog = [", dest)
 
-for potx in range(0, 101):
+for x in range(0, 101):
     motorLeft.reset_angle(0)
     motorRight.reset_angle(0)
-    pot = potx
-    # pot = potx/1.098901098901099 + 9 # Tira o comentário desta linha para usar a potência corrigida
-    motorLeft.dc(pot)
-    motorRight.dc(pot)
+    pote = 0.9936*(x) + 4.9170
+    potd = 0.9935*(x) + 5.0179
+    motorLeft.dc(pote)
+    motorRight.dc(potd)
     wait(1000)
     motorLeft.brake()
     motorRight.brake()
-    msg = '{:} {:} {:};'.format(potx, motorLeft.angle(), motorRight.angle())
+    msg = '{:} {:} {:};'.format(x, motorLeft.angle(), motorRight.angle())
     print(msg)
     udp.sendto(msg, dest)
     wait(3000)
