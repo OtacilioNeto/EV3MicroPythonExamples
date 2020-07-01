@@ -99,6 +99,7 @@ while(True):
             motorLeft.dc(potenciaReal)
             motorRight.dc(potenciaReal)
         else:
+            motorOn = False
             motorLeft.brake()
             motorRight.brake()
     else:

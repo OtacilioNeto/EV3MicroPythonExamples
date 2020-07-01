@@ -51,8 +51,8 @@ ev3.speaker.set_speech_options('pt-br','m3')
 
 motorLeft = Motor(Port.B)
 motorRight= Motor(Port.C)
-motorLeft.dc(0)
-motorRight.dc(0)
+motorLeft.brake()
+motorRight.brake()
 
 ev3.speaker.beep()
 
