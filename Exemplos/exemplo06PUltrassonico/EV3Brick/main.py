@@ -25,10 +25,7 @@ PORT = 2508            # Porta que o Servidor esta
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 dest = (HOST, PORT)
 
-
 ev3.speaker.say("Iniciando programa de controle")
-
-cronometro = StopWatch()
 
 # topSensor está em Port.S4
 # bottonSensor está em Port.S1
