@@ -83,6 +83,9 @@ def opcoesMenuPrincipal():
         ev3.speaker.say("Para cima, calibração de cores")
         botoes = ev3.buttons.pressed()
     if(len(botoes) == 0):
+        ev3.speaker.say("Para baixo, carrega uma calibração prévia")
+        botoes = ev3.buttons.pressed()
+    if(len(botoes) == 0):
         ev3.speaker.say("Para direita, inicia a prova")
         botoes = ev3.buttons.pressed()
     if(len(botoes) == 0):
@@ -168,6 +171,23 @@ def executaCalibracao(sensorLeft, sensorRight, contador, udp):
     (a1, a0) = minimosQuadradosRGB(Y, X)
     return (a1, a0, contador)
 
+def salvaCalibracao(a1, a0):
+    arquivo = open("calibracao.csv", "w")
+    arquivo.write(str(a1[0])+";"+str(a1[1])+";"+str(a1[2])+";"+str(a0[0])+";"+str(a0[1])+";"+str(a0[2]))
+    arquivo.close()
+
+def carregaCalibracao():
+    ev3.speaker.say("Carregando uma calibração prévia")
+    a1 = (0, 0, 0)
+    a0 = (0, 0, 0)
+    arquivo = open("calibracao.csv", "r")
+    linha   = arquivo.readline()
+    a10, a11, a12, a00, a01, a02 = linha.split(";")
+    a1 = (float(a10), float(a11), float(a12))
+    a0 = (float(a00), float(a01), float(a02))
+    arquivo.close()
+    return (a1, a0)
+
 # Create your objects here.
 ev3 = EV3Brick()
 
@@ -218,7 +238,11 @@ while(True):
     elif(botoes != botoesAnt):
         cronometro.reset()
     elif([Button.UP] == botoes and cronometro.time()>=250):        
-        (a1, a0, contador) = executaCalibracao(corLeft, corRight, contador, udp)        
+        (a1, a0, contador) = executaCalibracao(corLeft, corRight, contador, udp)
+        salvaCalibracao(a1, a0)
+        opcoesMenuPrincipal()
+    elif([Button.DOWN] == botoes and cronometro.time()>=250):        
+        (a1, a0) = carregaCalibracao()
         opcoesMenuPrincipal()
     elif([Button.CENTER] == botoes and cronometro.time()>=250):
         break
