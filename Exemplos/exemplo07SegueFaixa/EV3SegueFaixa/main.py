@@ -77,7 +77,7 @@ def minimosQuadradosRGB(Y, X):
     return (a1, a0)
 
 def opcoesMenuPrincipal():
-    ev3.speaker.say("Executando menu principal")
+    ev3.speaker.say("Menu principal")
     botoes = ev3.buttons.pressed()
     if(len(botoes) == 0):
         ev3.speaker.say("Para cima, calibração de cores")
@@ -95,7 +95,7 @@ def opcoesMenuPrincipal():
         ev3.speaker.say("Centro, encerra o programa")
 
 def executaCalibracao(sensorLeft, sensorRight, contador, udp):
-    ev3.speaker.say("Iniciando calibração")
+    ev3.speaker.say("Calibração dos sensores")
     botoes = ev3.buttons.pressed()
     if(len(botoes) == 0):
         ev3.speaker.say("Para cima, branco")
@@ -188,6 +188,33 @@ def carregaCalibracao():
     arquivo.close()
     return (a1, a0)
 
+def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight):
+    ev3.speaker.say("Executando a prova")
+    leSensoresRGB       = leCorMedia(sensorLeft, sensorRight)
+
+    refEsquerda = leSensoresRGB[0] + leSensoresRGB[1] + leSensoresRGB[2]
+    refDireita  = leSensoresRGB[3]*a1[0] + a0[0] + leSensoresRGB[4]*a1[1] + a0[1] + leSensoresRGB[5]*a1[2] + a0[2]
+
+    while([Button.CENTER] not in ev3.buttons.pressed()):
+        left = sensorLeft.rgb()
+        right= sensorRight.rgb()
+
+        rr = right[0]+a1[0]*right[0] + a0[0]
+        rg = right[1]+a1[1]*right[1] + a0[1]
+        rb = right[2]+a1[2]*right[2] + a0[2]
+
+        corEsquerda = left[0] + left[1] + left[2]
+        corDireita  = rr      + rg      + rb
+
+        potLeft = (corEsquerda-refEsquerda)*K + potRef
+        potRight= (corDireita -refDireita)*K  + potRef
+
+        motorLeft.dc(potLeft)
+        motorRight.dc(potRight)
+
+    motorLeft.brake()
+    motorRight.brake()
+
 # Create your objects here.
 ev3 = EV3Brick()
 
@@ -226,7 +253,7 @@ ev3.speaker.say("Iniciando programa de controle")
 
 botoes = []
 botoesAnt = botoes
-opcoesMenuPrincipal()
+
 a1 = (0, 0, 0)
 a0 = (0, 0, 0)
 contador = 0
@@ -237,15 +264,17 @@ while(True):
         cronometro.reset()
     elif(botoes != botoesAnt):
         cronometro.reset()
-    elif([Button.UP] == botoes and cronometro.time()>=250):        
+    elif([Button.UP] == botoes and cronometro.time()>=250):
         (a1, a0, contador) = executaCalibracao(corLeft, corRight, contador, udp)
-        salvaCalibracao(a1, a0)
-        opcoesMenuPrincipal()
-    elif([Button.DOWN] == botoes and cronometro.time()>=250):        
+        salvaCalibracao(a1, a0)        
+    elif([Button.DOWN] == botoes and cronometro.time()>=250):
         (a1, a0) = carregaCalibracao()
-        opcoesMenuPrincipal()
+    elif([Button.RIGHT] == botoes and cronometro.time()>=250):
+        potRef  = 80
+        K       = 2
+        executaProva(potRef, K, corLeft, corRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight)
     elif([Button.CENTER] == botoes and cronometro.time()>=250):
-        break
+        opcoesMenuPrincipal()
 
     left = corLeft.rgb()
     right= corRight.rgb()
@@ -266,6 +295,5 @@ while(True):
     udp.sendto (msg, dest)
 
     botoesAnt = botoes
-
 
 ev3.speaker.say("Encerrado")
