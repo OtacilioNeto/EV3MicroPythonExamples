@@ -193,7 +193,7 @@ def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSe
     leSensoresRGB       = leCorMedia(sensorLeft, sensorRight)
 
     refEsquerda = leSensoresRGB[0] + leSensoresRGB[1] + leSensoresRGB[2]
-    refDireita  = leSensoresRGB[3]*a1[0] + a0[0] + leSensoresRGB[4]*a1[1] + a0[1] + leSensoresRGB[5]*a1[2] + a0[2]
+    refDireita  = leSensoresRGB[3] + leSensoresRGB[4] + leSensoresRGB[5] + leSensoresRGB[3]*a1[0] + a0[0] + leSensoresRGB[4]*a1[1] + a0[1] + leSensoresRGB[5]*a1[2] + a0[2]
 
     while([Button.CENTER] not in ev3.buttons.pressed()):
         left = sensorLeft.rgb()
@@ -209,8 +209,11 @@ def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSe
         potLeft = (corEsquerda-refEsquerda)*K + potRef
         potRight= (corDireita -refDireita)*K  + potRef
 
-        motorLeft.dc(potLeft)
-        motorRight.dc(potRight)
+        pote = 0.9936*(potLeft) + 4.9170    # Correção da zona morta
+        potd = 0.9935*(potRight) + 5.0179
+
+        motorLeft.dc(pote)
+        motorRight.dc(potd)
 
     motorLeft.brake()
     motorRight.brake()
