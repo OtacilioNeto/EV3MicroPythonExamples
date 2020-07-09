@@ -108,16 +108,12 @@ int main(int argc, char* argv[])
   sensor.SetLabels(labelSensor);
   potencia.SetLabels(labelPotencia);
 
-  const float tinc = 0.02f;
-
   // OpenGL 'view' of data. We might have many views of the same data.
-  pangolin::Plotter plotterleft(&sensor, 0.0f, 4.0f*(float)M_PI/tinc, 0, MAXDIST , 
-    (float)M_PI/(4.0f*tinc),0.5f);
+  pangolin::Plotter plotterleft(&sensor, 0.0f, 300, 0, MAXDIST , 1, 1);
   plotterleft.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterleft.Track("$i");
 
-  pangolin::Plotter plotterright(&potencia, 0.0f, 4.0f*(float)M_PI/tinc, -MAXPOT, MAXPOT, 
-    (float)M_PI/(4.0f*tinc),0.5f);
+  pangolin::Plotter plotterright(&potencia, 0.0f, 300, -MAXPOT, MAXPOT, 1, 1);
   plotterright.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterright.Track("$i");
 
@@ -125,8 +121,6 @@ int main(int argc, char* argv[])
     .SetLayout(pangolin::LayoutEqual)
     .AddDisplay(plotterleft)
     .AddDisplay(plotterright);
-
-  float t = 0;
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   pangolin::FinishFrame();
@@ -159,8 +153,7 @@ int main(int argc, char* argv[])
 
     sensor.Log(lsensor);
     potencia.Log(lpotencia);
-    t += tinc;
-
+    
     meuarquivo << acontador << " " << lsensor << " " << lpotencia << " " << lproporci << ";" << endl;
 
     // Render graph, Swap frames and Process Events

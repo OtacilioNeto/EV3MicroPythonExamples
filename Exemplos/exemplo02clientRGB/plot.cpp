@@ -98,17 +98,13 @@ int main(int argc, char* argv[])
   logleft.SetLabels(labels);
   logright.SetLabels(labels);
 
-  const float tinc = 0.02f;
-
-  // OpenGL 'view' of data. We might have many views of the same data.
-  pangolin::Plotter plotterleft(&logleft, 0.0f, 4.0f*(float)M_PI/tinc, 0, 100, 
-    (float)M_PI/(4.0f*tinc),0.5f);
+    // OpenGL 'view' of data. We might have many views of the same data.
+  pangolin::Plotter plotterleft(&logleft, 0.0f, 300, 0, 100, 1, 1);
   plotterleft.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterleft.SetBackgroundColour(branco);
   plotterleft.Track("$i");
 
-  pangolin::Plotter plotterright(&logright, 0.0f, 4.0f*(float)M_PI/tinc, 0, 100, 
-    (float)M_PI/(4.0f*tinc),0.5f);
+  pangolin::Plotter plotterright(&logright, 0.0f, 300, 0, 100, 1, 1);
   plotterright.SetBounds(0.0, 1.0, 0.0, 1.0);
   plotterright.SetBackgroundColour(branco);
   plotterright.Track("$i");
@@ -117,8 +113,6 @@ int main(int argc, char* argv[])
     .SetLayout(pangolin::LayoutEqual)
     .AddDisplay(plotterleft)
     .AddDisplay(plotterright);
-
-  float t = 0;
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   pangolin::FinishFrame();
@@ -156,8 +150,7 @@ int main(int argc, char* argv[])
 
       logleft.Log(lr, lg, lb);
       logright.Log(rr, rg, rb);
-      t += tinc;
-
+      
       meuarquivo << lr << " " << lg << " " << lb << " " << rr << " " << rg << " " << rb << ";" << endl;
 
       // Render graph, Swap frames and Process Events
