@@ -12,6 +12,7 @@ import socket
 # This program requires LEGO EV3 MicroPython v2.0 or higher.
 # Click "Open user guide" on the EV3 extension tab for more information.
 NAMOSTRAS = 100
+TKEYPRESS = 25
 
 def leCorMedia(sensorLeft, sensorRight):
     corLeftRed      = 0
@@ -92,7 +93,7 @@ def opcoesMenuPrincipal():
         ev3.speaker.say("Para esquerda, pausa a prova")
         botoes = ev3.buttons.pressed()
     if(len(botoes) == 0):
-        ev3.speaker.say("Centro, encerra o programa")
+        ev3.speaker.say("Centro, menu principal")
 
 def executaCalibracao(sensorLeft, sensorRight, contador, udp):
     ev3.speaker.say("Calibração dos sensores")
@@ -124,27 +125,27 @@ def executaCalibracao(sensorLeft, sensorRight, contador, udp):
             cronometro.reset()
         elif(botoes != botoesAnt):
             cronometro.reset()
-        elif([Button.UP] == botoes and cronometro.time()>=250):        
+        elif([Button.UP] == botoes and cronometro.time()>=TKEYPRESS):        
             ev3.speaker.say("Calibrando branco")
             branco = leCorMedia(sensorLeft, sensorRight)
             erroBranco = encontraErroRGB(branco)
             ev3.speaker.say("Feito")
-        elif([Button.DOWN] == botoes and cronometro.time()>=250):        
+        elif([Button.DOWN] == botoes and cronometro.time()>=TKEYPRESS):        
             ev3.speaker.say("Calibrando preto")
             preto = leCorMedia(sensorLeft, sensorRight)
             erroPreto = encontraErroRGB(preto)
             ev3.speaker.say("Feito")
-        elif([Button.LEFT] == botoes and cronometro.time()>=250):        
+        elif([Button.LEFT] == botoes and cronometro.time()>=TKEYPRESS):        
             ev3.speaker.say("Calibrando verde")
             verde = leCorMedia(sensorLeft, sensorRight)
             erroVerde = encontraErroRGB(verde)
             ev3.speaker.say("Feito")
-        elif([Button.RIGHT] == botoes and cronometro.time()>=250):        
+        elif([Button.RIGHT] == botoes and cronometro.time()>=TKEYPRESS):        
             ev3.speaker.say("Calibrando cinza")
             cinza = leCorMedia(sensorLeft, sensorRight)
             erroCinza = encontraErroRGB(cinza)
             ev3.speaker.say("Feito")
-        elif([Button.CENTER] == botoes and cronometro.time()>=250):
+        elif([Button.CENTER] == botoes and cronometro.time()>=TKEYPRESS):
             break
         
         left = corLeft.rgb()
@@ -188,14 +189,14 @@ def carregaCalibracao():
     arquivo.close()
     return (a1, a0)
 
-def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight):
+def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight, udp, dst, contador):
     ev3.speaker.say("Executando a prova")
     leSensoresRGB       = leCorMedia(sensorLeft, sensorRight)
 
     refEsquerda = leSensoresRGB[0] + leSensoresRGB[1] + leSensoresRGB[2]
     refDireita  = leSensoresRGB[3] + leSensoresRGB[4] + leSensoresRGB[5] + leSensoresRGB[3]*a1[0] + a0[0] + leSensoresRGB[4]*a1[1] + a0[1] + leSensoresRGB[5]*a1[2] + a0[2]
 
-    while([Button.CENTER] not in ev3.buttons.pressed()):
+    while(Button.LEFT not in ev3.buttons.pressed()):
         left = sensorLeft.rgb()
         right= sensorRight.rgb()
 
@@ -215,8 +216,24 @@ def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSe
         motorLeft.dc(pote)
         motorRight.dc(potd)
 
+        slr = "{0:.2f}".format(left[0])
+        slg = "{0:.2f}".format(left[1])
+        slb = "{0:.2f}".format(left[2])
+
+        srr = "{0:.2f}".format(rr)
+        srg = "{0:.2f}".format(rg)
+        srb = "{0:.2f}".format(rb)
+
+        contador += 1
+
+        msg = str(contador)+" "+slr+" "+slg+" "+slb+" "+srr+" "+srg+" "+srb
+
+        udp.sendto(msg, dest)
+
     motorLeft.brake()
     motorRight.brake()
+
+    return contador
 
 # Create your objects here.
 ev3 = EV3Brick()
@@ -267,16 +284,16 @@ while(True):
         cronometro.reset()
     elif(botoes != botoesAnt):
         cronometro.reset()
-    elif([Button.UP] == botoes and cronometro.time()>=250):
+    elif([Button.UP] == botoes and cronometro.time()>=TKEYPRESS):
         (a1, a0, contador) = executaCalibracao(corLeft, corRight, contador, udp)
         salvaCalibracao(a1, a0)        
-    elif([Button.DOWN] == botoes and cronometro.time()>=250):
+    elif([Button.DOWN] == botoes and cronometro.time()>=TKEYPRESS):
         (a1, a0) = carregaCalibracao()
-    elif([Button.RIGHT] == botoes and cronometro.time()>=250):
+    elif([Button.RIGHT] == botoes and cronometro.time()>=TKEYPRESS):
         potRef  = 80
         K       = 2
-        executaProva(potRef, K, corLeft, corRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight)
-    elif([Button.CENTER] == botoes and cronometro.time()>=250):
+        contador = executaProva(potRef, K, corLeft, corRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight, udp, dest, contador)
+    elif([Button.CENTER] == botoes and cronometro.time()>=TKEYPRESS):
         opcoesMenuPrincipal()
 
     left = corLeft.rgb()
@@ -293,9 +310,8 @@ while(True):
     contador += 1
 
     msg = str(contador)+" "+lr+" "+lg+" "+lb+" "+rr+" "+rg+" "+rb
-    #print("Tempo formatação ", cronometro.time())
 
-    udp.sendto (msg, dest)
+    udp.sendto(msg, dest)
 
     botoesAnt = botoes
 
