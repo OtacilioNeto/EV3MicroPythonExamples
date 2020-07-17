@@ -210,8 +210,16 @@ def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSe
         potLeft = (corEsquerda-refEsquerda)*K + potRef
         potRight= (corDireita -refDireita)*K  + potRef
 
-        pote = 0.9936*(potLeft) + 4.9170    # Correção da zona morta
-        potd = 0.9935*(potRight) + 5.0179
+        # Correção da zona morta
+        if(potLeft>=0):
+            pote = 0.9936*(potLeft) + 4.9170
+        else:
+            pote = 0.9936*(potLeft) - 4.9170
+
+        if(potRight>=0):
+            potd = 0.9935*(potRight) + 5.0179
+        else:
+            potd = 0.9935*(potRight) - 5.0179
 
         motorLeft.dc(pote)
         motorRight.dc(potd)
