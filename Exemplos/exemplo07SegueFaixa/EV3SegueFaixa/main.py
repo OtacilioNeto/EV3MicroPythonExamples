@@ -13,6 +13,7 @@ import socket
 # Click "Open user guide" on the EV3 extension tab for more information.
 NAMOSTRAS = 100
 TKEYPRESS = 25
+LIMIARREF = 12
 
 def leCorMedia(sensorLeft, sensorRight):
     corLeftRed      = 0
@@ -189,6 +190,61 @@ def carregaCalibracao():
     arquivo.close()
     return (a1, a0)
 
+def vira(direcao, potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight, udp, dst, contador, refEsquerda, refDireita):
+    while(Button.LEFT not in ev3.buttons.pressed()):
+        left = sensorLeft.rgb()
+        right= sensorRight.rgb()
+
+        rr = right[0]+a1[0]*right[0] + a0[0]
+        rg = right[1]+a1[1]*right[1] + a0[1]
+        rb = right[2]+a1[2]*right[2] + a0[2]
+
+        corEsquerda = left[0] + left[1] + left[2]
+        corDireita  = rr      + rg      + rb
+
+        if(direcao == -1):
+            potRight= (corDireita - refDireita)*K  + potRef
+            potLeft = -potRight
+        else:
+            potLeft = (corEsquerda-refEsquerda)*K + potRef
+            potRight= -potLeft
+
+        # Correção da zona morta
+        if(potLeft>=0):
+            pote = 0.9936*(potLeft) + 4.9170
+        else:
+            pote = 0.9936*(potLeft) - 4.9170
+
+        if(potRight>=0):
+            potd = 0.9935*(potRight) + 5.0179
+        else:
+            potd = 0.9935*(potRight) - 5.0179
+
+        motorLeft.dc(pote)
+        motorRight.dc(potd)
+
+        slr = "{0:.2f}".format(left[0])
+        slg = "{0:.2f}".format(left[1])
+        slb = "{0:.2f}".format(left[2])
+
+        srr = "{0:.2f}".format(rr)
+        srg = "{0:.2f}".format(rg)
+        srb = "{0:.2f}".format(rb)
+
+        contador += 1
+
+        msg = str(contador)+" "+slr+" "+slg+" "+slb+" "+srr+" "+srg+" "+srb
+
+        udp.sendto(msg, dest)
+        if(abs(pote)<9 and abs(potd)<9):
+            break
+
+    motorLeft.brake()
+    motorRight.brake()
+
+    return contador
+
+
 def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight, udp, dst, contador):
     ev3.speaker.say("Executando a prova")
     leSensoresRGB       = leCorMedia(sensorLeft, sensorRight)
@@ -221,8 +277,13 @@ def executaProva(potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSe
         else:
             potd = 0.9935*(potRight) - 5.0179
 
-        motorLeft.dc(pote)
-        motorRight.dc(potd)
+        if(rr<=LIMIARREF and rg<=LIMIARREF and rb<=LIMIARREF):
+            contador = vira( 1, potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight, udp, dst, contador, refEsquerda, refDireita)
+        elif(left[0]<=LIMIARREF and left[1]<=LIMIARREF and left[2]<=LIMIARREF):
+            contador = vira(-1, potRef, K, sensorLeft, sensorRight, a1, a0, topSensor, bottonSensor, motorLeft, motorRight, udp, dst, contador, refEsquerda, refDireita)
+        else:
+            motorLeft.dc(pote)
+            motorRight.dc(potd)
 
         slr = "{0:.2f}".format(left[0])
         slg = "{0:.2f}".format(left[1])

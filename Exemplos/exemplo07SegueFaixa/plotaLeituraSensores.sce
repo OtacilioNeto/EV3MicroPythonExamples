@@ -4,7 +4,7 @@ exec(get_absolute_file_path('plotaLeituraSensores.sce')+'pistaAngulada.sce', 0);
 exec(get_absolute_file_path('plotaLeituraSensores.sce')+'turnRight.sce', 0);
 exec(get_absolute_file_path('plotaLeituraSensores.sce')+'turnLeft.sce', 0);
 
-MAXNUMBER=780
+MAXNUMBER=340
 
 scf(1001)
 clf()
