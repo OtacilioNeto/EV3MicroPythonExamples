@@ -17,9 +17,10 @@
 
 using namespace std;
 
-static const char short_options[] = "f:";
+static const char short_options[] = "f:t";
 static const struct option long_options[] = {
 	{ "file",           required_argument,  NULL, 'f' },
+  { "tcontador",                      0,  NULL, 't' },
   { 0, 	                              0,	   0,  0  }
 };
 
@@ -27,6 +28,7 @@ static void usage(char **argv)
 {
         cerr << "Uso: "<<argv[0]<<" <options>"<<endl<<endl<<
                 "Options:"<<endl<<
+                "-t | --tcontador testa o número de sequência nos pacotes UDP"<<endl<<
                 "-f | --file nome do arquivo para guardar os valores lidos"<<endl<<endl;
 }
 
@@ -37,6 +39,7 @@ int main(int argc, char* argv[])
   struct sockaddr_in servaddr, cliaddr; 
   string  arquivoPontos;
   std::ofstream meuarquivo;
+  bool naoTestaContador = true;
       
   for (;;) {
         int idx;
@@ -52,6 +55,10 @@ int main(int argc, char* argv[])
             break;
         case 'f':
             arquivoPontos = optarg;
+            break;
+        case 't':
+            naoTestaContador = false;
+            cout << "Verificando a sequência numérica do UDP" << endl;
             break;
 		    default:
 			    usage(argv);
@@ -129,7 +136,7 @@ int main(int argc, char* argv[])
     buffer[n] = '\0'; 
     char* token = strtok(buffer, " "); 
     acontador = strtol(token, NULL, 10);
-    if(acontador>contador){
+    if(acontador>contador || naoTestaContador){
       contador = acontador;
       token = strtok(NULL, " "); 
          
