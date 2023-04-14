@@ -2,7 +2,7 @@ CPP=g++
 
 INC=-I/usr/local/include -I/usr/include/eigen3
 
-CPPFLAGS=-Wall -O2 -std=c++11
+CPPFLAGS=-Wall -O2 -std=c++17 -DHAVE_GLEW
 
 LIBS=-lpangolin -lGL -lGLEW
 
