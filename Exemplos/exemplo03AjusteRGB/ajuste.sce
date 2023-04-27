@@ -77,33 +77,32 @@ reixo_blue.data_bounds = [0 0;reixo_blue.data_bounds(2,2) reixo_blue.data_bounds
 
 // Vamos ajustar uma reta aos valores de referência como também aos valores medidos
 subplot(3,2,2);
-scatter(gca(), rred, rred-ared, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [1 0 0]);
+scatter(gca(), rred, ared-rred, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [1 0 0]);
 eixo_red = gca();
-eixo_red.data_bounds = [0 0;reixo_red.data_bounds(2,2) reixo_red.data_bounds(2,2)];
+eixo_red.data_bounds = [0 -reixo_red.data_bounds(2,2); reixo_red.data_bounds(2,2) 0];
 subplot(3,2,4);
-scatter(gca(), rgreen, rgreen-agreen, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 1 0]);
+scatter(gca(), rgreen, agreen-rgreen, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 1 0]);
 eixo_green = gca();
-eixo_green.data_bounds = [0 0;reixo_green.data_bounds(2,2) reixo_green.data_bounds(2,2)];
+eixo_green.data_bounds = [0 -reixo_green.data_bounds(2,2);reixo_green.data_bounds(2,2) 0];
 subplot(3,2,6);
-scatter(gca(), rblue, rblue-ablue, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 0 1]);
+scatter(gca(), rblue, ablue-rblue, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 0 1]);
 eixo_blue = gca();
-eixo_blue.data_bounds = [0 0;reixo_blue.data_bounds(2,2) reixo_blue.data_bounds(2,2)];
+eixo_blue.data_bounds = [0 -reixo_blue.data_bounds(2,2);reixo_blue.data_bounds(2,2) 0];
                                                     // a função de ajuste
 tetaI=[1 0]';   // Valores iniciais dos parâmetros
 iteracoes=100;   // Numero de iterações
 
-Y=[rred-ared]'; 
+Y=[ared-rred]'; 
 X=ared';  
 estadoRed=GaussNewtonI(Y, X, tetaI, iteracoes);
 
-Y=[rgreen-agreen]';
+Y=[agreen-rgreen]';
 X=agreen';
 estadoGreen=GaussNewtonI(Y, X, tetaI, iteracoes);
 
-Y=[rblue-ablue]';
+Y=[ablue-rblue]';
 X=ablue';
 estadoBlue=GaussNewtonI(Y, X, tetaI, iteracoes);
-
 
 // Vamos plotar o gráfico das funções ajustadas
 scf(1002)
@@ -111,29 +110,29 @@ clf()
 X=[0:reixo_red.data_bounds(2,2)];
 Y=estadoRed(1)*X + estadoRed(2);
 subplot(2,2,1);
-scatter(gca(), ared, rred-ared, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [1 0 0]);
+scatter(gca(), ared, ared-rred, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [1 0 0]);
 titulo=msprintf("erro(x)=%fx+%f\n", estadoRed(1), estadoRed(2));
 plot(X,Y, "red", title(titulo, "fontsize",4));
 eixo_red = gca();
-eixo_red.data_bounds = [0 0;reixo_red.data_bounds(2,2) reixo_red.data_bounds(2,2)];
+eixo_red.data_bounds = [0 -reixo_red.data_bounds(2,2);reixo_red.data_bounds(2,2) 0];
 
 X=[0:reixo_green.data_bounds(2,2)];
 Y=estadoGreen(1)*X + estadoGreen(2);
 subplot(2,2,2);
-scatter(gca(), agreen, rgreen-agreen, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 1 0]);
+scatter(gca(), agreen, agreen-rgreen, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 1 0]);
 titulo=msprintf("erro(x)=%fx+%f\n", estadoGreen(1), estadoGreen(2));
 plot(X,Y, "green", title(titulo, "fontsize",4));
 eixo_green = gca();
-eixo_green.data_bounds = [0 0;reixo_green.data_bounds(2,2) reixo_green.data_bounds(2,2)];
+eixo_green.data_bounds = [0 -reixo_green.data_bounds(2,2);reixo_green.data_bounds(2,2) 0];
 
 X=[0:reixo_blue.data_bounds(2,2)];
 Y=estadoBlue(1)*X + estadoBlue(2);
 subplot(2,2,3);
-scatter(gca(), ablue, rblue-ablue, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 0 1]);
+scatter(gca(), ablue, ablue-rblue, 100, "markerEdgeColor", [0 0 0], "markerFaceColor", [0 0 1]);
 titulo=msprintf("erro(x)=%fx+%f\n", estadoBlue(1), estadoBlue(2));
 plot(X,Y, "blue", title(titulo, "fontsize",4));
 eixo_blue = gca();
-eixo_blue.data_bounds = [0 0;reixo_blue.data_bounds(2,2) reixo_blue.data_bounds(2,2)];
+eixo_blue.data_bounds = [0 -reixo_blue.data_bounds(2,2);reixo_blue.data_bounds(2,2) 0];
 
 // Vamos plotar os valores originais depois de corrigidos com as funções encontradas
 scf(1003)
@@ -145,7 +144,7 @@ eixo_red = gca();
 eixo_red.data_bounds = [0 0;reixo_red.data_bounds(2,2) reixo_red.data_bounds(2,2)];
 subplot(3,2,2);
 scatter(gca(), rred, rred, 100, "markerEdgeColor", [1 0 0], "markerFaceColor", [1 1 1]);
-scatter(gca(), rred, ared + estadoRed(1)*ared+estadoRed(2), 100, "markerEdgeColor", [1 0 0], "markerFaceColor", [1 0 0]);
+scatter(gca(), rred, ared -(estadoRed(1)*ared+estadoRed(2)), 100, "markerEdgeColor", [1 0 0], "markerFaceColor", [1 0 0]);
 eixo_red = gca();
 eixo_red.data_bounds = [0 0;reixo_red.data_bounds(2,2) reixo_red.data_bounds(2,2)];
 
@@ -156,7 +155,7 @@ eixo_green = gca();
 eixo_green.data_bounds = [0 0;reixo_green.data_bounds(2,2) reixo_green.data_bounds(2,2)];
 subplot(3,2,4);
 scatter(gca(), rgreen, rgreen, 100, "markerEdgeColor", [0 1 0], "markerFaceColor", [1 1 1]);
-scatter(gca(), rgreen, agreen + estadoGreen(1)*agreen+estadoGreen(2), 100, "markerEdgeColor", [0 1 0], "markerFaceColor", [0 1 0]);
+scatter(gca(), rgreen, agreen -(estadoGreen(1)*agreen+estadoGreen(2)), 100, "markerEdgeColor", [0 1 0], "markerFaceColor", [0 1 0]);
 eixo_green = gca();
 eixo_green.data_bounds = [0 0;reixo_green.data_bounds(2,2) reixo_green.data_bounds(2,2)];
 
@@ -167,6 +166,6 @@ eixo_blue = gca();
 eixo_blue.data_bounds = [0 0;reixo_blue.data_bounds(2,2) reixo_blue.data_bounds(2,2)];
 subplot(3,2,6);
 scatter(gca(), rblue, rblue, 100, "markerEdgeColor", [0 0 1], "markerFaceColor", [1 1 1]);
-scatter(gca(), rblue, ablue + estadoBlue(1)*ablue+estadoBlue(2), 100, "markerEdgeColor", [0 0 1], "markerFaceColor", [0 0 1]);
+scatter(gca(), rblue, ablue - (estadoBlue(1)*ablue+estadoBlue(2)), 100, "markerEdgeColor", [0 0 1], "markerFaceColor", [0 0 1]);
 eixo_blue = gca();
 eixo_blue.data_bounds = [0 0;reixo_blue.data_bounds(2,2) reixo_blue.data_bounds(2,2)];
