@@ -4,7 +4,7 @@ INC=-I/usr/local/include -I/usr/include/eigen3
 
 CPPFLAGS=-Wall -O2 -std=c++17 -DHAVE_GLEW
 
-LIBS=-lpangolin -lGL -lGLEW
+LIBS=-lpango_plot -lpango_opengl -lpango_display -lGL -lGLEW
 
 .PHONY: all clean
 
